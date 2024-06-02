@@ -21,7 +21,7 @@ def brute_force_zip(zip_file, wordlist):
         for idx, password in enumerate(passwords, start=1):
             password = password.strip('\n')
             try:
-                zip_file.extractall(pwd=bytes(password, 'utf-8')))
+                zip_file.extractall(pwd=bytes(password, 'utf-8'))
                 print(Fore.GREEN + f'[+] Password found: {password}')
                 return password
             except (RuntimeError, zipfile.BadZipFile):
