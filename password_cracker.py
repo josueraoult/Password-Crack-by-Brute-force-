@@ -1,3 +1,6 @@
+import sys
+sys.path.append('/data/data/com.termux/files/usr/lib/python2.7/site-packages')
+
 import zipfile
 import py7zr
 import os
