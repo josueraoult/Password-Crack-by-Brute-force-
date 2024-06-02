@@ -4,6 +4,7 @@ sys.path.append('/data/data/com.termux/files/usr/lib/python2.7/site-packages')
 import zipfile
 import py7zr
 import os
+import time
 from colorama import Fore, Style, init
 
 # Initialiser colorama
@@ -15,15 +16,23 @@ def brute_force_zip(zip_file, wordlist):
         with open(wordlist, 'r') as file:
             passwords = file.readlines()
         
-        for password in passwords:
+        total_passwords = len(passwords)
+        print(Fore.YELLOW + "Hacking zip file:")
+        for idx, password in enumerate(passwords, start=1):
             password = password.strip('\n')
             try:
-                zip_file.extractall(pwd=bytes(password, 'utf-8'))
+                zip_file.extractall(pwd=bytes(password, 'utf-8')))
                 print(Fore.GREEN + f'[+] Password found: {password}')
                 return password
             except (RuntimeError, zipfile.BadZipFile):
                 continue
-        print(Fore.RED + '[-] Password not found.')
+            finally:
+                progress = (idx / total_passwords) * 100
+                sys.stdout.write("\rHacking zip file: %.2f%%" % progress)
+                sys.stdout.flush()
+                time.sleep(0.1)
+        
+        print("\n" + Fore.RED + '[-] Password not found.')
         return None
     except Exception as e:
         print(Fore.RED + f"Error: {e}")
@@ -34,7 +43,9 @@ def brute_force_7z(file_7z, wordlist):
         with open(wordlist, 'r') as file:
             passwords = file.readlines()
         
-        for password in passwords:
+        total_passwords = len(passwords)
+        print(Fore.YELLOW + "Hacking 7z file:")
+        for idx, password in enumerate(passwords, start=1):
             password = password.strip('\n')
             try:
                 with py7zr.SevenZipFile(file_7z, mode='r', password=password) as archive:
@@ -45,7 +56,13 @@ def brute_force_7z(file_7z, wordlist):
                 continue
             except py7zr.exceptions.PasswordRequired:
                 continue
-        print(Fore.RED + '[-] Password not found.')
+            finally:
+                progress = (idx / total_passwords) * 100
+                sys.stdout.write("\rHacking 7z file: %.2f%%" % progress)
+                sys.stdout.flush()
+                time.sleep(0.1)
+
+        print("\n" + Fore.RED + '[-] Password not found.')
         return None
     except Exception as e:
         print(Fore.RED + f"Error: {e}")
@@ -61,10 +78,7 @@ def main():
 
     file_extension = os.path.splitext(file_path)[1].lower()
     
-    wordlist_path = input(Fore.YELLOW + "Enter the path to your wordlist file: ").strip()
-    if not os.path.isfile(wordlist_path):
-        print(Fore.RED + "Invalid wordlist file path. Please try again.")
-        return
+    wordlist_path = "wordlist.txt"
 
     if file_extension == '.zip':
         password = brute_force_zip(file_path, wordlist_path)
@@ -75,10 +89,9 @@ def main():
         return
 
     if password:
-        print(Fore.GREEN + f"Success! The password is: {password}")
+        print(Fore.GREEN + f"\nHACKING DONE! The password is: {password}")
     else:
-        print(Fore.RED + "Failed to find the password.")
+        print(Fore.RED + "\nFailed to find the password.")
 
 if __name__ == '__main__':
     main()
-          
